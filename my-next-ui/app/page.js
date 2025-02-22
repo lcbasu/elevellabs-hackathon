@@ -199,6 +199,8 @@ export default function Home() {
       // Preload and cache audio
       await cacheAudioSequentially(transcriptData); // Call the function sequentially
 
+      // preload other tetxts as audio as well
+      await cacheAudioSequentially(otherTexts);
     } catch (error) {
       console.error("Error fetching transcript:", error);
     }
@@ -322,7 +324,7 @@ export default function Home() {
 
         <h1>Transcript & Text-to-Speech</h1>
         <button onClick={fetchTranscript} style={{marginBottom: "20px", padding: "10px"}}>
-          Fetch Transcript & Cache Audio
+          Warmup
         </button>
 
         <ul>
