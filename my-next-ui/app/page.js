@@ -24,7 +24,7 @@ export default function Home() {
       <main className={styles.main}>
         {/* Video Component */}
         <div className={styles.videoContainer}>
-          <video ref={videoRef} className={styles.video} width="640" height="360" controls>
+          <video ref={videoRef} className={styles.video} width="640" height="360">
             <source src="/testing.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
