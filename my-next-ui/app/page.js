@@ -9,6 +9,8 @@ export default function Home() {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [transcript, setTranscript] = useState([]);
+  const [currentTextId, setCurrentTextId] = useState(null);
+  const [currentAudio, setCurrentAudio] = useState(null);
 
   const cacheAudioSequentially = async (transcriptData) => {
     for (const entry of transcriptData) {
@@ -78,10 +80,59 @@ export default function Home() {
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
+        if (currentAudio) {
+          currentAudio.pause();
+        }
       } else {
         videoRef.current.play();
       }
       setIsPlaying(!isPlaying);
+    }
+  };
+
+
+  const findTranscriptSegment = (currentTime) => {
+    return transcript.find((entry) => {
+      return currentTime >= entry.timestamp && currentTime < entry.timestamp + entry.duration;
+    });
+  };
+
+  const playSegmentAudio = async (segment) => {
+    if (!segment) return;
+
+    console.log("Playing segment audio: ", segment);
+    const textId = await generateTextId(segment.text);
+    if (textId === currentTextId) return; // Prevent replaying the same audio
+
+    const cachedAudio = await getAudioFromDB(textId);
+    if (cachedAudio) {
+      if (currentAudio) {
+        currentAudio.pause();
+      }
+
+      setCurrentTextId(textId);
+
+      const audioUrl = URL.createObjectURL(cachedAudio);
+      const audio = new Audio(audioUrl);
+      setCurrentAudio(audio);
+
+      audio.play();
+    } else {
+      console.error(`No cached audio found for ID ${textId}`);
+    }
+  };
+
+  const handleVideoUpdate = () => {
+    if (!videoRef.current) return;
+
+    const currentTime = videoRef.current.currentTime;
+    const segment = findTranscriptSegment(currentTime);
+
+    console.log("Current Time: ", currentTime);
+    console.log("Segment: ", segment);
+
+    if (segment) {
+      playSegmentAudio(segment);
     }
   };
 
@@ -107,8 +158,15 @@ export default function Home() {
 
         {/* Video Component */}
         <div className={styles.videoContainer}>
-          <video ref={videoRef} className={styles.video} width="640" height="360">
-            <source src="/testing.mp4" type="video/mp4"/>
+          <video
+            ref={videoRef}
+            className={styles.video}
+            width="640"
+            height="360"
+            muted
+            onTimeUpdate={handleVideoUpdate} // Sync transcript on video progress
+          >
+            <source src="/main.mp4" type="video/mp4"/>
             Your browser does not support the video tag.
           </video>
         </div>
