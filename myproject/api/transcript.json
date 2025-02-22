@@ -1,14 +1,121 @@
-[
-    {
-        "id": "001",
-        "timestamp": "0",
-        "duration": 33,
-        "text": "The quick brown fox jumps over the lazy dog."
-    },
-    {
-        "id": "002",
-        "timestamp": "34",
-        "duration": 60,
-        "text": "A journey of a thousand miles begins with a single step."
-    }
+[{"timestamp": "0:00", "text": "This is a dashboard, your home base in Mixpanel. Each card on a dashboard shows a top line metric, and behind each card you'll find a customizable report."},
+
+{"timestamp": "0:12", "text": "We'll talk about each of these reports, but first let's use the dashboard to draw some quick conclusions about the current state of our video streaming app."},
+
+{"timestamp": "0:17", "text": "It looks like new user acquisition is trending up, so are subscriptions, but retention is trending down, and our recent feature launch doesn't seem to be getting the traction we had hoped for."},
+
+{"timestamp": "0:34", "text": "Let's add a quick filter across all of these metrics to see if our KPIs are different for users on our mobile app. Just as we suspected, retention is strong among our mobile base, so is adoption of our new feature."},
+
+{"timestamp": "0:48", "text": "Without writing any SQL or waiting for a data team, we can quickly refocus on optimizing the web experience. What you've just seen is a finished state."},
+
+{"timestamp": "0:59", "text": "We have well-defined metrics, informed by product strategy, and we are able to filter our data to answer a question just as quickly as it popped into our head."},
+
+{"timestamp": "1:04", "text": "Being nimble and precise with metrics is the goal, but how did we get here? The answer lies in understanding the data behind the metrics, so let's take a look under the hood."},
+
+{"timestamp": "1:16", "text": "At the heart of Mixpanel is its data model. Mixpanel is event-centric and optimized for very large sets of data."},
+
+{"timestamp": "1:22", "text": "This means that every action your end users take in your app is tracked as an event. Events occur at some time and are performed by some user. Events can contain any number of custom dimensions or properties which contextualize each behavior."},
+
+{"timestamp": "1:41", "text": "For example, our watch video event may contain properties like video category, minutes watched, or any other business-specific data."},
+
+{"timestamp": "1:48", "text": "Here, we're looking at a user profile that represents an actual user in our app. This profile can also contain properties that describe the user, independent of their behaviors."},
+
+{"timestamp": "1:59", "text": "Mixpanel's enrichment layer joins all of this data together for analysis. This means everything you see here can be used in any analysis report. So let's build our first report."},
+
+{"timestamp": "2:11", "text": "Welcome to Insights. This is the Query Builder, and it's a huge part of the magic that is Mixpanel."},
+
+{"timestamp": "2:16", "text": "First, we'll choose a metric. The drop-down contains the different events that you've sent to Mixpanel."},
+
+{"timestamp": "2:21", "text": "I'll choose watch video, and the real-time visualization shows the total number of times this action has occurred in the last 30 days."},
+
+{"timestamp": "2:31", "text": "For each metric we select, we can choose our method of counting. Totals is the default, but there are many other options."},
+
+{"timestamp": "2:37", "text": "These choices are very similar to aggregator functions in SQL, but much simpler to use. While I won't discuss all of the different counting options here, this is a perfect example of Mixpanel's advantage over legacy systems."},
+
+{"timestamp": "2:54", "text": "You get quick, single-click access to advanced analysis algorithms that are specifically tuned to examine user behaviors over time."},
+
+{"timestamp": "3:01", "text": "I'll choose Uniques, so our chart only counts the unique number of users who have watched at least one video every day, as opposed to the total number of videos that were watched."},
+
+{"timestamp": "3:11", "text": "Now we have a metric that is a better measure of activity across our entire user base."},
+
+{"timestamp": "3:17", "text": "Finally, the three dots in every block of the query builder are where you'll find convenient controls and advanced analysis tools like the first time filter and other inline filters."},
+
+{"timestamp": "3:27", "text": "By adding a first time filter, we're now only counting users who watched a video for the first time ever, and we'll use the inline filter to adapt our metric to only include videos watched by our Android or iOS users."},
+
+{"timestamp": "3:40", "text": "In seconds, we have a sufficiently complex and easy-to-understand metric that is a good indicator for our acquisition rate on mobile platforms, since we're only counting new users who have watched a video for the first time."},
+
+{"timestamp": "3:52", "text": "Let's duplicate all the logic for this metric using the same filters, except this time we'll count the number of users who liked their first piece of content."},
+
+{"timestamp": "4:04", "text": "Now we have two metrics, A and B. With that in mind, let's turn our attention to the data visualization metric you create. There are a number of different options for how the data can be visualized."},
+
+{"timestamp": "4:15", "text": "One of the most important parts of any query is the time frame. While customizing your time and date range is fairly self-explanatory, the compare to button is really powerful and lets us stack adjacent days, weeks, months, or even quarters on the same time axis so we can quickly see how our metrics have changed from a prior period."},
+
+{"timestamp": "4:34", "text": "We can also change the visualization to the type that best suits our analysis."},
+
+{"timestamp": "4:41", "text": "Each type of chart has its own customization options to define how the metric is summarized or computed. In our case, a line chart is the best fit, and linear daily counts work great."},
+
+{"timestamp": "4:53", "text": "Just because we're curious, let's flip the daily buckets to hourly so each data point represents a single hour instead of a single day."},
+
+{"timestamp": "4:59", "text": "Immediately, a surprising theme emerges. Because the lines are overlapping a bit here, let's flip this to a stacked line visualization to see the data more clearly."},
+
+{"timestamp": "5:10", "text": "These regular spikes in engagement show us that there's a time-based pattern for when users are watching their first video and liking their first piece of content."},
+
+{"timestamp": "5:16", "text": "Let's see that in more detail. I'll grab a chunk of time by clicking into the chart to zoom in on a few of these peaks, and now it's easy for us to hover over each data point and see that these large spikes of newly engaged users occur every day around the same time."},
+
+{"timestamp": "5:34", "text": "That's a really useful insight."},
+
+{"timestamp": "5:40", "text": "Segmentation in Mixpanel is fast and easy. In the query builder, you find the breakdown section and add a dimension or property that you'd like to group your metric by."},
+
+{"timestamp": "5:45", "text": "Let's flip our current metric to a bar chart and then break down by UTM source."},
+
+{"timestamp": "5:52", "text": "We're still looking at the same number of users, but now our chart shows us each source of acquisition, which lets us see where these users are coming from."},
+
+{"timestamp": "6:02", "text": "Organic traffic is the best performing segment here, but because we might be interested in paid acquisition channels, we can click on this bar to filter it out of our analysis."},
+
+{"timestamp": "6:12", "text": "While there's many more things to explore in the Insights report, let's move on. This report allows us to look at behaviors performed in a series."},
+
+{"timestamp": "6:17", "text": "It's how we build conversion or completion metrics and how we quantify the overall health of any acquisition strategy."},
+
+{"timestamp": "6:29", "text": "In this example, we'll model a three-step funnel that starts with app open, then watch video, and then purchase, and we'll give our users 24 hours to complete all of these steps."},
+
+{"timestamp": "6:35", "text": "In almost no time, we have an accurately modeled funnel that shows our current conversion around 30% over the last 30 days."},
+
+{"timestamp": "6:46", "text": "While this summary view of our funnel is helpful, it doesn't tell us if 30% conversion rate is good or bad. Answering follow-up questions like this is easy in Mixpanel."},
+
+{"timestamp": "6:53", "text": "By switching this same funnel to a new view, we can see how conversion changes over time, which lets us focus on optimizing the top or bottom of our funnel."},
+
+{"timestamp": "7:05", "text": "The time to convert view shows us how long it takes users to complete all the actions in our funnel, and lets us zoom in on different segments of time."},
+
+{"timestamp": "7:17", "text": "The frequency view illustrates repeated actions within our funnel, like how many videos users watch before they convert to purchase."},
+
+{"timestamp": "7:23", "text": "And of course, all of these views are segmentable. By adding a breakdown on platform, for example, we can see a surprising bump in conversion on iOS."},
+
+{"timestamp": "7:37", "text": "The flows report is useful when you don't know the path that your users take to arrive at a particular destination, and you want to map out all possible journeys."},
+
+{"timestamp": "7:48", "text": "We'll choose a couple of milestones in our user's journey—sign up and upload video for the first time ever—so that we can see what our app's content creator's first upload experience looks like."},
+
+{"timestamp": "8:00", "text": "Here's an unexpected but promising insight. Most of our users who upload their first video do so after subscribing to three channels."},
+
+{"timestamp": "8:10", "text": "This is an important behavioral pattern that would have been really hard to surface in any other tool."},
+
+{"timestamp": "8:15", "text": "The retention report helps you understand which users you're keeping engaged and which ones you're losing. Framing a retention query is easy."},
+
+{"timestamp": "8:20", "text": "In the first step, we'll choose an action users must do in order to be considered a potentially retained user. Let's choose sign up."},
+
+{"timestamp": "8:32", "text": "Next, we'll choose an action that we'd like our users to perform repeatedly. For a video streaming app, watch video makes the most sense."},
+
+{"timestamp": "8:37", "text": "When we look at the visualization, we can see that between day 24 and day 26 of each user's lifecycle, retention dips below 50%. If we're trying to increase retention in our app, this is a good place to start."},
+
+{"timestamp": "8:53", "text": "I know we've covered a lot already, but there's so much more to Mixpanel than we can show you in this video."},
+
+{"timestamp": "8:57", "text": "There are advanced reports like experiments for A-B testing analysis, an impact report for measuring product launches, and the signal report for finding correlations between user actions and cohorts."},
+
+{"timestamp": "9:15", "text": "We also have dozens of native integrations with cloud warehouses, CDPs, marketing tools, and other data platforms."},
+
+{"timestamp": "9:21", "text": "Fundamentally, Mixpanel puts your data within reach. It allows you to create queries, both simple and advanced, get real-time results, and share those insights with teammates, stakeholders, and even external parties like clients, agencies, or investors."},
+
+{"timestamp": "9:36", "text": "We want you to spend time on what matters, making data-informed decisions to build winning digital products."},
+
+{"timestamp": "9:39", "text": "Get started today with your free account, or choose the plan that best fits your needs."},
+{"timestamp": "9:44", "text": "Thanks for watching."}
 ]

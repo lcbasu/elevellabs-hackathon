@@ -1,26 +1,18 @@
-from django.shortcuts import render
-
 # Create your views here.
 
-from rest_framework import generics
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .serializers import EchoSerializer
-
-
-import os
 import json
+import os
+
 import numpy as np
-from django.shortcuts import get_object_or_404
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from sklearn.metrics.pairwise import cosine_similarity
 from mistralai import Mistral
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from sklearn.metrics.pairwise import cosine_similarity
+
 from .models import TextEmbedding
-from .serializers import TextEmbeddingSerializer
+from .serializers import EchoSerializer
+from .utils import process_transcript  # Import utility function
 
 # Set up Mistral API Key
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
@@ -41,11 +33,7 @@ class EchoView(APIView):
 
 class GenerateEmbeddingsView(APIView):
     def post(self, request):
-        if not os.path.exists(TRANSCRIPT_FILE):
-            return Response({"error": "transcript.json file not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        with open(TRANSCRIPT_FILE, "r") as f:
-            transcript_data = json.load(f)
+        transcript_data = process_transcript()
 
         new_texts = []
         for text_data in transcript_data:
@@ -113,11 +101,6 @@ class QueryEmbeddingView(APIView):
 
 class TranscriptView(APIView):
     def get(self, request):
-        # Load transcript.json
-        if not os.path.exists(TRANSCRIPT_FILE):
-            return Response({"error": "transcript.json file not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        with open(TRANSCRIPT_FILE, "r") as f:
-            transcript_data = json.load(f)
+        transcript_data = process_transcript()
 
         return Response(transcript_data, status=status.HTTP_200_OK)
