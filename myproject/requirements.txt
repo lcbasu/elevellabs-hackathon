@@ -15,3 +15,6 @@ mistralai
 numpy
 
 scikit-learn
+
+requests
+

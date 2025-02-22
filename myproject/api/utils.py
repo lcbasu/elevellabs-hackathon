@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import hashlib
 
 # Path to transcript.json file
 TRANSCRIPT_FILE = os.path.join(os.path.dirname(__file__), "transcript.json")
@@ -29,11 +30,14 @@ def process_transcript():
     if not isinstance(transcript_data, list):
         transcript_data = [transcript_data]
 
+    # text_id = generate_text_id(text)  # Generate a hash-based ID
+
     processed_data = []
     for i, entry in enumerate(transcript_data):
-        id = i + 1  # Unique ID
-        timestamp = timestamp_to_seconds(entry["timestamp"])
         text = entry["text"]
+        text_id = generate_text_id(text)  # Generate a hash-based ID
+        id = text_id  # Unique ID
+        timestamp = timestamp_to_seconds(entry["timestamp"])
 
         # Compute duration
         if i < len(transcript_data) - 1:
@@ -50,3 +54,7 @@ def process_transcript():
         })
 
     return processed_data
+
+# Function to generate a unique hash ID based on text content
+def generate_text_id(text):
+    return hashlib.sha256(text.encode()).hexdigest()

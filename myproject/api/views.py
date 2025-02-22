@@ -1,9 +1,13 @@
 # Create your views here.
 
-import json
 import os
+import uuid
+from urllib.parse import unquote
 
 import numpy as np
+import requests
+from django.http import JsonResponse, FileResponse, HttpResponse
+from django.views import View
 from mistralai import Mistral
 from rest_framework import status
 from rest_framework.response import Response
@@ -14,7 +18,11 @@ from .models import TextEmbedding
 from .serializers import EchoSerializer
 from .utils import process_transcript  # Import utility function
 
-# Set up Mistral API Key
+ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+ELEVENLABS_VOICE_ID = "9BWtsMINqrJLrRacOk9x"  # Replace with the desired voice ID
+CACHE_DIR = "cached_audio"
+# Ensure cache directory exists
+os.makedirs(CACHE_DIR, exist_ok=True)
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 client = Mistral(api_key=MISTRAL_API_KEY)
 
@@ -104,3 +112,42 @@ class TranscriptView(APIView):
         transcript_data = process_transcript()
 
         return Response(transcript_data, status=status.HTTP_200_OK)
+
+class TextToSpeechView(View):
+    def get(self, request):
+
+        raw_text = request.GET.get("text", "")
+        if not raw_text:
+            return JsonResponse({"error": "Text query parameter is required"}, status=400)
+
+        text = unquote(raw_text)  # Decode URL-encoded text
+
+        # text_id = generate_text_id(text)
+        text_id = str(uuid.uuid4())  # Generate a random UUID
+        audio_path = os.path.join(CACHE_DIR, f"{text_id}.mp3")
+
+        # Return cached file if it exists
+        if os.path.exists(audio_path):
+            return FileResponse(open(audio_path, "rb"), content_type="audio/mpeg")
+
+        # Call ElevenLabs API
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVENLABS_VOICE_ID}?output_format=mp3_44100_128"
+        headers = {
+            "xi-api-key": ELEVENLABS_API_KEY,
+            "Content-Type": "application/json"
+        }
+        payload = {"text": text}
+
+        tts_response = requests.post(url, headers=headers, json=payload)
+        if tts_response.status_code == 200:
+            # Save audio file
+            with open(audio_path, "wb") as f:
+                f.write(tts_response.content)
+
+            # Return audio file as response
+            with open(audio_path, "rb") as audio_file:
+                response = HttpResponse(audio_file.read(), content_type="audio/mpeg")
+                response["Content-Disposition"] = f'inline; filename="{text_id}.mp3"'
+                return response
+
+        return JsonResponse({"error": "Failed to generate audio"}, status=500)
