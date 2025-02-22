@@ -45,7 +45,7 @@ class GenerateEmbeddingsView(APIView):
 
         new_texts = []
         for text_data in transcript_data:
-            text_id = text_data.get("id")
+            text_id = text_data.get("text_id")
             if not TextEmbedding.objects.filter(text_id=text_id).exists():
                 new_texts.append(text_data)
 
@@ -59,7 +59,7 @@ class GenerateEmbeddingsView(APIView):
         # Save embeddings to database
         for i, text_data in enumerate(new_texts):
             TextEmbedding.objects.create(
-                text_id=text_data["id"],
+                text_id=text_data["text_id"],
                 timestamp=text_data["timestamp"],
                 duration=text_data["duration"],
                 text=text_data["text"],

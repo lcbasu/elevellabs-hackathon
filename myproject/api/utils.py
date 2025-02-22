@@ -36,7 +36,6 @@ def process_transcript():
     for i, entry in enumerate(transcript_data):
         text = entry["text"]
         text_id = generate_text_id(text)  # Generate a hash-based ID
-        id = text_id  # Unique ID
         timestamp = timestamp_to_seconds(entry["timestamp"])
 
         # Compute duration
@@ -47,7 +46,7 @@ def process_transcript():
             duration = 3  # Last entry duration
 
         processed_data.append({
-            "id": id,
+            "text_id": text_id,
             "timestamp": timestamp,
             "duration": duration,
             "text": text
