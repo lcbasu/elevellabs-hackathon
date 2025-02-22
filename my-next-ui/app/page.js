@@ -236,18 +236,18 @@ export default function Home() {
     }
   };
 
-  // Play cached audio
-  const playAudio = async (text) => {
-    const textId = await generateTextId(text);
-    const cachedAudio = await getAudioFromDB(textId);
-    if (cachedAudio) {
-      const audioUrl = URL.createObjectURL(cachedAudio);
-      const audio = new Audio(audioUrl);
-      audio.play();
-    } else {
-      console.error(`No cached audio found for ID ${textId}`);
-    }
-  };
+  // // Play cached audio
+  // const playAudio = async (text) => {
+  //   const textId = await generateTextId(text);
+  //   const cachedAudio = await getAudioFromDB(textId);
+  //   if (cachedAudio) {
+  //     const audioUrl = URL.createObjectURL(cachedAudio);
+  //     const audio = new Audio(audioUrl);
+  //     audio.play();
+  //   } else {
+  //     console.error(`No cached audio found for ID ${textId}`);
+  //   }
+  // };
 
   const toggleVideo = () => {
     if (videoRef.current) {
@@ -290,14 +290,16 @@ export default function Home() {
       const audioUrl = URL.createObjectURL(cachedAudio);
       const audio = new Audio(audioUrl);
       setCurrentAudio(audio);
-      audio.onloadedmetadata = () => {
-        const audioDuration = audio.duration || segment.duration; // Fallback if duration is unavailable
+      audio.addEventListener("loadedmetadata", () => {
         if (videoRef.current) {
-          const playbackRate = segment.duration / audioDuration;
-          videoRef.current.playbackRate = playbackRate;
-          console.log(`Setting playback rate: ${playbackRate}`);
+          const audioDuration = audio.duration || segment.duration; // Fallback if duration is unavailable
+          const newPlaybackRate = segment.duration / audioDuration;
+          console.log(
+            `Segment at ${segment.timestamp}: TTS duration = ${audioDuration}, desired duration = ${segment.duration}, video playbackRate = ${newPlaybackRate}`
+          );
+          videoRef.current.playbackRate = newPlaybackRate;
         }
-      };
+      });
       audio.play();
     } else {
       console.error(`No cached audio found for ID ${textId}`);
@@ -327,16 +329,16 @@ export default function Home() {
           Warmup
         </button>
 
-        <ul>
-          {transcript.map((entry) => (
-            <li key={entry.id} style={{marginBottom: "10px"}}>
-              {entry.text}
-              <button onClick={() => playAudio(entry.text)} style={{marginLeft: "10px"}}>
-                ▶️ Play
-              </button>
-            </li>
-          ))}
-        </ul>
+        {/*<ul>*/}
+        {/*  {transcript.map((entry) => (*/}
+        {/*    <li key={entry.id} style={{marginBottom: "10px"}}>*/}
+        {/*      {entry.text}*/}
+        {/*      <button onClick={() => playAudio(entry.text)} style={{marginLeft: "10px"}}>*/}
+        {/*        ▶️ Play*/}
+        {/*      </button>*/}
+        {/*    </li>*/}
+        {/*  ))}*/}
+        {/*</ul>*/}
 
         {/* Video Component */}
         <div className={styles.videoContainer}>
