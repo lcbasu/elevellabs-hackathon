@@ -5,6 +5,37 @@ import styles from "./page.module.css";
 import axios from "axios";
 import {getAudioFromDB, storeAudioInDB} from "./indexedDB";
 
+const otherTexts = [
+  {
+    id: 'some_action',
+    text: "Ok, I will do as you say.",
+  },
+  {
+    id: 'pause',
+    text: "Ok, I will pause and wait for you to complete.",
+  },
+  {
+    id: 'before_new_section_resumes',
+    text: "Alright. I will move to the desired section.",
+  },
+  {
+    id: 'resume_without_action',
+    text: "Cool. I will resume.",
+  },
+  {
+    id: 'sorry',
+    text: "I am so sorry. I could not understand you. Can you please repeat?",
+  },
+  {
+    id: 'go_back',
+    text: "Sure. I will start from last section.",
+  },
+  {
+    id: 'go_to_start',
+    text: "Sure. I will start from teh beginning.",
+  },
+]
+
 export default function Home() {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
