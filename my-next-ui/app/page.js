@@ -11,6 +11,70 @@ export default function Home() {
   const [transcript, setTranscript] = useState([]);
   const [currentTextId, setCurrentTextId] = useState(null);
   const [currentAudio, setCurrentAudio] = useState(null);
+  const [isListening, setIsListening] = useState(false);
+  const wsRef = useRef(null);
+  let mediaRecorder = useRef(null);
+
+  const DEEPGRAM_API_KEY = process.env.NEXT_PUBLIC_DEEPGRAM_API_KEY;
+
+  const startListening = async () => {
+    if (isListening) return;
+    setIsListening(true);
+    console.log("Listening...");
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          noiseSuppression: true,
+          echoCancellation: true,
+          autoGainControl: true,
+          channelCount: 1,
+        },
+      });
+
+      mediaRecorder.current = new MediaRecorder(stream, { mimeType: "audio/webm" });
+
+      wsRef.current = new WebSocket(`wss://api.deepgram.com/v1/listen`, ["token", DEEPGRAM_API_KEY]);
+
+      wsRef.current.onopen = () => {
+        console.log("Connected to Deepgram WebSocket");
+        mediaRecorder.current.start(1000);
+      };
+
+      wsRef.current.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        console.log("WebSocket message:", message);
+        if (message.channel?.alternatives[0]?.transcript) {
+          console.log("actual user spoken message: ", message.channel.alternatives[0].transcript);
+        }
+      };
+
+      wsRef.current.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
+
+      mediaRecorder.current.ondataavailable = (event) => {
+        console.log("Sending audio data...", event);
+        if (wsRef.current.readyState === WebSocket.OPEN) {
+          wsRef.current.send(event.data);
+        }
+      };
+
+      mediaRecorder.current.onstop = () => {
+        wsRef.current.close();
+        setIsListening(false);
+      };
+    } catch (error) {
+      console.error("Error accessing microphone:", error);
+      setIsListening(false);
+    }
+  };
+
+  const stopListening = () => {
+    if (!isListening) return;
+    setIsListening(false);
+    mediaRecorder.current.stop();
+  };
 
   const cacheAudioSequentially = async (transcriptData) => {
     for (const entry of transcriptData) {
@@ -80,11 +144,13 @@ export default function Home() {
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
+        stopListening();
         if (currentAudio) {
           currentAudio.pause();
         }
       } else {
         videoRef.current.play();
+        startListening()
       }
       setIsPlaying(!isPlaying);
     }
@@ -135,8 +201,8 @@ export default function Home() {
     const currentTime = videoRef.current.currentTime;
     const segment = findTranscriptSegment(currentTime);
 
-    console.log("Current Time: ", currentTime);
-    console.log("Segment: ", segment);
+    // console.log("Current Time: ", currentTime);
+    // console.log("Segment: ", segment);
 
     if (segment) {
       playSegmentAudio(segment);
