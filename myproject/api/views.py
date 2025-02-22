@@ -110,3 +110,14 @@ class QueryEmbeddingView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+class TranscriptView(APIView):
+    def get(self, request):
+        # Load transcript.json
+        if not os.path.exists(TRANSCRIPT_FILE):
+            return Response({"error": "transcript.json file not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        with open(TRANSCRIPT_FILE, "r") as f:
+            transcript_data = json.load(f)
+
+        return Response(transcript_data, status=status.HTTP_200_OK)
