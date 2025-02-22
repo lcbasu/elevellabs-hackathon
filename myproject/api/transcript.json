@@ -1,0 +1,14 @@
+[
+    {
+        "id": "001",
+        "timestamp": "0",
+        "duration": 33,
+        "text": "The quick brown fox jumps over the lazy dog."
+    },
+    {
+        "id": "002",
+        "timestamp": "34",
+        "duration": 60,
+        "text": "A journey of a thousand miles begins with a single step."
+    }
+]

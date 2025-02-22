@@ -11,6 +11,7 @@ from .serializers import EchoSerializer
 
 
 import os
+import json
 import numpy as np
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
@@ -25,6 +26,8 @@ from .serializers import TextEmbeddingSerializer
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 client = Mistral(api_key=MISTRAL_API_KEY)
 
+TRANSCRIPT_FILE = os.path.join(os.path.dirname(__file__), "transcript.json")
+
 class EchoView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = EchoSerializer(data=request.data)
@@ -38,13 +41,14 @@ class EchoView(APIView):
 
 class GenerateEmbeddingsView(APIView):
     def post(self, request):
-        texts_data = request.data.get("texts", [])
+        if not os.path.exists(TRANSCRIPT_FILE):
+            return Response({"error": "transcript.json file not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        if not texts_data:
-            return Response({"error": "No texts provided"}, status=status.HTTP_400_BAD_REQUEST)
+        with open(TRANSCRIPT_FILE, "r") as f:
+            transcript_data = json.load(f)
 
         new_texts = []
-        for text_data in texts_data:
+        for text_data in transcript_data:
             text_id = text_data.get("id")
             if not TextEmbedding.objects.filter(text_id=text_id).exists():
                 new_texts.append(text_data)
