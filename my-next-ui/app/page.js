@@ -115,7 +115,14 @@ export default function Home() {
       const audioUrl = URL.createObjectURL(cachedAudio);
       const audio = new Audio(audioUrl);
       setCurrentAudio(audio);
-
+      audio.onloadedmetadata = () => {
+        const audioDuration = audio.duration || segment.duration; // Fallback if duration is unavailable
+        if (videoRef.current) {
+          const playbackRate = segment.duration / audioDuration;
+          videoRef.current.playbackRate = playbackRate;
+          console.log(`Setting playback rate: ${playbackRate}`);
+        }
+      };
       audio.play();
     } else {
       console.error(`No cached audio found for ID ${textId}`);
