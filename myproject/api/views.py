@@ -16,7 +16,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from .models import TextEmbedding
 from .serializers import EchoSerializer
-from .utils import process_transcript  # Import utility function
+from .utils import process_transcript, generate_text_id  # Import utility function
 
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 ELEVENLABS_VOICE_ID = "9BWtsMINqrJLrRacOk9x"  # Replace with the desired voice ID
@@ -122,8 +122,8 @@ class TextToSpeechView(View):
 
         text = unquote(raw_text)  # Decode URL-encoded text
 
-        # text_id = generate_text_id(text)
-        text_id = str(uuid.uuid4())  # Generate a random UUID
+        text_id = generate_text_id(text)
+        # text_id = str(uuid.uuid4())  # Generate a random UUID
         audio_path = os.path.join(CACHE_DIR, f"{text_id}.mp3")
 
         # Return cached file if it exists

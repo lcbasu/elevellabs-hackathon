@@ -1,15 +1,20 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import Image from "next/image";
+import {useRef, useState} from "react";
 import styles from "./page.module.css";
 import axios from "axios";
+import {getAudioFromDB, storeAudioInDB} from "./indexedDB";
 
 export default function Home() {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [transcript, setTranscript] = useState([]);
-  const [audioCache, setAudioCache] = useState({});
+
+  const cacheAudioSequentially = async (transcriptData) => {
+    for (const entry of transcriptData) {
+      await cacheAudio(entry.text); // Call sequentially [Eleven labs limit]
+    }
+  };
 
   // Fetch transcript and cache audio
   const fetchTranscript = async () => {
@@ -19,9 +24,8 @@ export default function Home() {
       setTranscript(transcriptData);
 
       // Preload and cache audio
-      ["hello world"].forEach((entry) => {
-        cacheAudio("hello world");
-      });
+      await cacheAudioSequentially(transcriptData); // Call the function sequentially
+
     } catch (error) {
       console.error("Error fetching transcript:", error);
     }
@@ -36,19 +40,10 @@ export default function Home() {
     return hashHex;
   }
 
-  // Convert Blob to Base64
-  const blobToBase64 = (blob) => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = () => resolve(reader.result);
-    });
-  };
-
   // Cache audio in LocalStorage as Base64
   const cacheAudio = async (text) => {
     const textId = await generateTextId(text);
-    const cachedAudio = localStorage.getItem(`audio_${textId}`);
+    const cachedAudio = await getAudioFromDB(textId);
 
     if (!cachedAudio) {
       try {
@@ -56,27 +51,26 @@ export default function Home() {
           params: { text },
           responseType: "blob",
         });
-
-        const base64Audio = await blobToBase64(response.data);
-        localStorage.setItem(`audio_${textId}`, base64Audio); // Store Base64 instead of Blob URL
-
-        setAudioCache((prev) => ({ ...prev, [textId]: base64Audio }));
+        await storeAudioInDB(textId, response.data);
+        console.log(`Audio cached in IndexedDB for textId: ${textId}`);
       } catch (error) {
         console.error(`Error fetching audio for ID ${textId}:`, error);
       }
     } else {
       console.log("Audio already cached for textId: " + textId);
-      setAudioCache((prev) => ({ ...prev, [textId]: cachedAudio }));
     }
   };
 
   // Play cached audio
   const playAudio = async (text) => {
-    const textId = await generateTextId("hello world");
-    const audioSrc = audioCache[textId] || localStorage.getItem(`audio_${textId}`);
-    if (audioSrc) {
-      const audio = new Audio(audioSrc);
+    const textId = await generateTextId(text);
+    const cachedAudio = await getAudioFromDB(textId);
+    if (cachedAudio) {
+      const audioUrl = URL.createObjectURL(cachedAudio);
+      const audio = new Audio(audioUrl);
       audio.play();
+    } else {
+      console.error(`No cached audio found for ID ${textId}`);
     }
   };
 
