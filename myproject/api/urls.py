@@ -16,8 +16,10 @@ Including another URLconf
 """
 from django.urls import path
 
-from .views import EchoView
+from .views import EchoView, QueryEmbeddingView, GenerateEmbeddingsView
 
 urlpatterns = [
     path('echo/', EchoView.as_view(), name='echo'),
+    path("generate/", GenerateEmbeddingsView.as_view(), name="generate_embeddings"),
+    path("query/", QueryEmbeddingView.as_view(), name="query_embedding"),
 ]

@@ -1,0 +1,17 @@
+# Django framework
+Django>=3.2,<4.0
+
+# Django REST Framework for building APIs
+djangorestframework>=3.12,<4.0
+
+# (Optional) If you’re using PostgreSQL as your database
+psycopg2-binary>=2.9
+
+# (Optional) To handle Cross-Origin Resource Sharing (CORS)
+django-cors-headers>=3.7,<4.0
+
+mistralai
+
+numpy
+
+scikit-learn
