@@ -45,7 +45,9 @@ export default function Home() {
         const message = JSON.parse(event.data);
         console.log("WebSocket message:", message);
         if (message.channel?.alternatives[0]?.transcript) {
-          console.log("actual user spoken message: ", message.channel.alternatives[0].transcript);
+          const transcript = message.channel.alternatives[0].transcript;
+          console.log("actual user spoken message: ", transcript);
+          queryEmbeddings(transcript)
         }
       };
 
@@ -67,6 +69,20 @@ export default function Home() {
     } catch (error) {
       console.error("Error accessing microphone:", error);
       setIsListening(false);
+    }
+  };
+
+  const queryEmbeddings = async (queryText) => {
+    try {
+      const response = await axios.post("http://127.0.0.1:8000/api/query/", {
+        query: queryText,
+      });
+      console.log("Query embeddings response:", response);
+      if (response.data) {
+        console.log(response.data);
+      }
+    } catch (error) {
+      console.error("Error querying embeddings:", error);
     }
   };
 
