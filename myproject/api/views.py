@@ -94,7 +94,7 @@ class QueryEmbeddingView(APIView):
         similarities = cosine_similarity(query_embedding, embeddings)[0]
 
         # Find best match
-        best_match_index = np.argmax(similarities)
+        best_match_index = int(np.argmax(similarities))
         best_match = stored_texts[best_match_index]
 
         return Response(
