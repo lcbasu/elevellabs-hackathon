@@ -1,0 +1,65 @@
+# ---------------------------
+# Global Files & OS-specific
+# ---------------------------
+# Environment files
+*.env
+# macOS system files
+.DS_Store
+# IDE/editor directories
+.idea/
+.vscode/
+
+# ---------------------------
+# Python & Django Specific
+# ---------------------------
+# Byte-compiled files and caches
+*.py[cod]
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments (adjust names if different)
+env/
+venv/
+
+# Distribution/build directories
+build/
+dist/
+.eggs/
+*.egg-info/
+
+# Django local settings (if not meant to be public)
+local_settings.py
+
+# SQLite databases (commonly used for development)
+db.sqlite3
+
+# Media uploads or static files that are generated
+/media
+/staticfiles
+
+# ---------------------------
+# Node / Vercel (Next.js, etc.) Specific
+# ---------------------------
+# Node modules and lock files
+node_modules/
+package-lock.json
+yarn.lock
+
+# Next.js build output
+.next/
+out/
+
+# Vercel CLI configuration (auto-generated)
+.vercel/
+.vercelignore
+
+# ---------------------------
+# Additional Common Artifacts
+# ---------------------------
+# Logs
+*.log
+
+
+
