@@ -5,7 +5,7 @@ from django.db import models
 
 class TextEmbedding(models.Model):
     text_id = models.CharField(max_length=255, unique=True)  # Unique ID for text
-    timestamp = models.DateTimeField()  # Timestamp of the text
+    timestamp = models.IntegerField()  # Timestamp of the text start
     duration = models.FloatField()  # Duration in seconds
     text = models.TextField()  # Actual text content
     embedding = models.JSONField()  # Stores embedding as JSON
