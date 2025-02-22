@@ -54,49 +54,109 @@ export default function Home() {
     console.log("Listening...");
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      navigator.mediaDevices.getUserMedia({
         audio: {
           noiseSuppression: true,
           echoCancellation: true,
           autoGainControl: true,
           channelCount: 1,
         },
-      });
+      })
+        .then(stream => {
+          const mediaRecorder = new MediaRecorder(stream, {mimeType: 'audio/webm'});
+          const deepgramSocket = new WebSocket('wss://api.deepgram.com/v1/listen?utterances=true', ["token", DEEPGRAM_API_KEY]
+          );
 
-      mediaRecorder.current = new MediaRecorder(stream, { mimeType: "audio/webm" });
+          deepgramSocket.onopen = () => {
+            mediaRecorder.ondataavailable = (event) => {
+              if (deepgramSocket.readyState === WebSocket.OPEN) {
+                deepgramSocket.send(event.data);
+              }
+            };
 
-      wsRef.current = new WebSocket(`wss://api.deepgram.com/v1/listen`, ["token", DEEPGRAM_API_KEY]);
+            // Start recording and send data every 250ms (adjust as needed)
+            mediaRecorder.start(250);
+          };
 
-      wsRef.current.onopen = () => {
-        console.log("Connected to Deepgram WebSocket");
-        mediaRecorder.current.start(1000);
-      };
+          deepgramSocket.onmessage = (message) => {
+            console.log('Deepgram message: ', message.data);
+            const data = JSON.parse(message.data);
+            console.log('Deepgram data: ', data);
+            const transcript = data.channel.alternatives[0].transcript;
+            console.log('Deepgram transcript: ', transcript);
 
-      wsRef.current.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        console.log("WebSocket message:", message);
-        if (message.channel?.alternatives[0]?.transcript) {
-          const transcript = message.channel.alternatives[0].transcript;
-          console.log("actual user spoken message: ", transcript);
-          queryEmbeddings(transcript)
-        }
-      };
+            // Check for an endpoint/utterance end
+            if (data.speech_final) {
+              // A complete utterance has been detected.
+              const finalTranscript = data.channel.alternatives[0].transcript;
+              console.log('Utterance ended:', finalTranscript);
 
-      wsRef.current.onerror = (error) => {
-        console.error("WebSocket error:", error);
-      };
+              if (finalTranscript.length > 3) {
+                // Send the final transcript to the server for processing.
+                queryEmbeddings(finalTranscript);
+              }
 
-      mediaRecorder.current.ondataavailable = (event) => {
-        console.log("Sending audio data...", event);
-        if (wsRef.current.readyState === WebSocket.OPEN) {
-          wsRef.current.send(event.data);
-        }
-      };
+              // You can now trigger any logic based on the complete utterance,
+              // for example, executing a command or clearing a transcript display.
+            }
+            // Otherwise, process interim results if needed.
+            else {
+              const interimTranscript = data.channel.alternatives[0].transcript;
+              console.log('Interim transcript:', interimTranscript);
+            }
 
-      mediaRecorder.current.onstop = () => {
-        wsRef.current.close();
-        setIsListening(false);
-      };
+          };
+
+          deepgramSocket.onerror = (error) => {
+            console.error('Deepgram WebSocket error: ', error);
+          };
+        })
+        .catch(error => {
+          console.error('Error accessing microphone:', error);
+        });
+      // const stream = await navigator.mediaDevices.getUserMedia({
+      //   audio: {
+      //     noiseSuppression: true,
+      //     echoCancellation: true,
+      //     autoGainControl: true,
+      //     channelCount: 1,
+      //   },
+      // });
+      //
+      // mediaRecorder.current = new MediaRecorder(stream, { mimeType: "audio/webm" });
+      //
+      // wsRef.current = new WebSocket(`wss://api.deepgram.com/v1/listen`, ["token", DEEPGRAM_API_KEY]);
+      //
+      // wsRef.current.onopen = () => {
+      //   console.log("Connected to Deepgram WebSocket");
+      //   mediaRecorder.current.start(1000);
+      // };
+      //
+      // wsRef.current.onmessage = (event) => {
+      //   const message = JSON.parse(event.data);
+      //   console.log("WebSocket message:", message);
+      //   if (message.channel?.alternatives[0]?.transcript) {
+      //     const transcript = message.channel.alternatives[0].transcript;
+      //     console.log("actual user spoken message: ", transcript);
+      //     queryEmbeddings(transcript)
+      //   }
+      // };
+      //
+      // wsRef.current.onerror = (error) => {
+      //   console.error("WebSocket error:", error);
+      // };
+      //
+      // mediaRecorder.current.ondataavailable = (event) => {
+      //   console.log("Sending audio data...", event);
+      //   if (wsRef.current.readyState === WebSocket.OPEN) {
+      //     wsRef.current.send(event.data);
+      //   }
+      // };
+      //
+      // mediaRecorder.current.onstop = () => {
+      //   wsRef.current.close();
+      //   setIsListening(false);
+      // };
     } catch (error) {
       console.error("Error accessing microphone:", error);
       setIsListening(false);
