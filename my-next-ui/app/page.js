@@ -110,6 +110,8 @@ export default function Home() {
 
   // Function to play TTS audio for a given segment.
   const playSegmentAudio = async (segment) => {
+    console.log(`Playing segment ${segment.timestamp}: with playback rate of = ${videoRef.current.playbackRate}`
+    );
     try {
       // For concurrent playback, do not pause video immediately.
       if (ttsAudioRef.current) {
@@ -135,11 +137,11 @@ export default function Home() {
       ttsAudio.addEventListener("loadedmetadata", () => {
         const audioDuration = ttsAudio.duration;
         const newPlaybackRate = segment.duration / audioDuration;
-        console.log(
-          `Segment at ${segment.timestamp}: TTS duration = ${audioDuration.toFixed(
-            2
-          )}, desired duration = ${segment.duration}, video playbackRate = ${newPlaybackRate.toFixed(2)}`
-        );
+        // console.log(
+        //   `Segment at ${segment.timestamp}: TTS duration = ${audioDuration.toFixed(
+        //     2
+        //   )}, desired duration = ${segment.duration}, video playbackRate = ${newPlaybackRate.toFixed(2)}`
+        // );
         videoRef.current.playbackRate = newPlaybackRate;
       });
 
@@ -330,17 +332,17 @@ export default function Home() {
 
           deepgramSocket.onmessage = (message) => {
             // Handle recognition results from Deepgram here
-            console.log('Deepgram message: ', message.data);
+            // console.log('Deepgram message: ', message.data);
             const data = JSON.parse(message.data);
-            console.log('Deepgram data: ', data);
+            // console.log('Deepgram data: ', data);
             const transcript = data.channel.alternatives[0].transcript;
-            console.log('Deepgram transcript: ', transcript);
+            // console.log('Deepgram transcript: ', transcript);
 
             // Check for an endpoint/utterance end
             if (data.speech_final) {
               // A complete utterance has been detected.
               const finalTranscript = data.channel.alternatives[0].transcript;
-              console.log('Utterance ended:', finalTranscript);
+              // console.log('Utterance ended:', finalTranscript);
 
               if (finalTranscript.length > 3) {
                 // Send the final transcript to the server for processing.
@@ -472,7 +474,6 @@ export default function Home() {
             <source src="/main.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
-          <p>Playing transcript-based TTS synchronized with the video.</p>
         </div>
       </main>
     </div>
