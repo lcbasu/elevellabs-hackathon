@@ -533,12 +533,17 @@ export default function Home() {
         setDemoStarted(true);
       }
     } else {
-      setDemoStarted(false);
-      setCurrentSegmentIndex(0);
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-      videoRef.current.playbackRate = 1;
-      if (ttsAudioRef.current) ttsAudioRef.current.pause();
+      if (demoPaused) {
+        handleResumeDemo()
+      } else {
+        handlePauseDemo()
+      }
+      // setDemoStarted(false);
+      // setCurrentSegmentIndex(0);
+      // videoRef.current.pause();
+      // videoRef.current.currentTime = 0;
+      // videoRef.current.playbackRate = 1;
+      // if (ttsAudioRef.current) ttsAudioRef.current.pause();
     }
   };
 
@@ -585,7 +590,7 @@ export default function Home() {
           {isMuted ? "Unmute" : "Mute"}
         </button>
         <button className={styles.hangupButton} onClick={handleToggleDemo}>
-          {demoStarted ? "Hang Up" : "Call"}
+          {!demoStarted ? "Call" : demoPaused ? "Resume" : "Pause"}
         </button>
         <button className={styles.sideButton} onClick={handleNotes}>
           Notes
