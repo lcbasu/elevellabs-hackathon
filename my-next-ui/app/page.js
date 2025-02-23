@@ -434,48 +434,38 @@ export default function Home() {
     if (demoPaused) handleResumeDemo();
   };
 
+  const handleToggleDemo = async () => {
+    if (!demoStarted) {
+      // Optionally, preload the transcript and cache audio
+      await fetchTranscriptAndCacheAudio();
+      setCurrentSegmentIndex(0);
+      videoRef.current.currentTime = 0;
+      videoRef.current.playbackRate = 1;
+      if (ttsAudioRef.current) ttsAudioRef.current.pause();
+      videoRef.current.play().catch((err) => console.warn("Video play error:", err));
+      setDemoStarted(true);
+    } else {
+      setDemoStarted(false);
+      setCurrentSegmentIndex(0);
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+      videoRef.current.playbackRate = 1;
+      if (ttsAudioRef.current) ttsAudioRef.current.pause();
+    }
+  };
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        {/* Control Panel */}
-        <div style={{ marginBottom: "20px" }}>
-          {!demoStarted && (
-            <button onClick={handleStartDemo}>Start Demo</button>
-          )}
-          {demoStarted && !demoPaused && (
-            <>
-              <button onClick={handlePauseDemo}>Pause Demo</button>
-              <button onClick={handleStopDemo}>Stop Demo</button>
-            </>
-          )}
-          {demoStarted && demoPaused && (
-            <>
-              <button onClick={handleResumeDemo}>Resume</button>
-              <button onClick={handleStopDemo}>Stop</button>
-              <button onClick={handleStartFromBeginning}>Start from Beginning</button>
-              <button onClick={handleStartFromRandomSection}>
-                Start from Random Section
-              </button>
-            </>
-          )}
-          <br />
-          <button onClick={fetchTranscriptAndCacheAudio}>Warm Up</button>
-        </div>
-
-        {/* Video Player Section */}
-        <div>
-          {/* No native controls */}
-          <video
-            ref={videoRef}
-            style={{ width: "calc(80vw - 40px)" }}
-            muted
-            onVolumeChange={(e) => (e.target.volume = 0)}
-          >
-            <source src="/main.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-        </div>
-      </main>
+    <div className={styles.container}>
+      <video
+        ref={videoRef}
+        className={styles.video}
+        muted
+      >
+        <source src="/main.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <button className={styles.controlButton} onClick={handleToggleDemo}>
+        {demoStarted ? "End Demo" : "Start Demo"}
+      </button>
     </div>
   );
 }
