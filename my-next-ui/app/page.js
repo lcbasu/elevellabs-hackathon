@@ -7,6 +7,14 @@ import {getAudioFromDB, storeAudioInDB} from "./indexedDB";
 
 const otherTexts = [
   {
+    id: 'external',
+    text: "I am so sorry. Let me share a way for you to meet someone from our sales team.",
+  },
+  {
+    id: 'warmup',
+    text: "Hi there! I’m excited to show you how Mixpanel turns raw data into actionable insights, empowering you to make smarter decisions and drive growth. Let’s get started!",
+  },
+  {
     id: 'some_action',
     text: "Ok, I will do as you say.",
   },
@@ -35,6 +43,48 @@ const otherTexts = [
     text: "Sure. I will start from teh beginning.",
   },
 ]
+
+const CalendarModal = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        background: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000,
+      }}
+      onClick={onClose} // Close when clicking the overlay
+    >
+      <div
+        style={{
+          background: '#fff',
+          borderRadius: '8px',
+          width: '80%',
+          maxWidth: '600px',
+          height: '80%',
+          maxHeight: '800px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+          overflow: 'hidden',
+        }}
+        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
+      >
+        <iframe
+          src="https://cal.com/lokesh-basu-hluoli" // Replace with your Cal.com URL
+          style={{ width: '100%', height: '100%', border: 'none' }}
+          title="Cal.com Scheduling"
+        />
+      </div>
+    </div>
+  );
+};
 
 export default function Home() {
   const videoRef = useRef(null);
@@ -216,6 +266,9 @@ export default function Home() {
           // Process the query response here.
           // handleResumeDemo();
           switch (data.intent) {
+            case 'external':
+              intent = 'external';
+              break;
             case 'pause':
               intent = 'pause';
               break;
@@ -268,6 +321,10 @@ export default function Home() {
             // Execute your code here.
             // take some action based on the response
             switch (intent) {
+              case 'external':
+                console.log('external');
+                openCalendarModal();
+                break;
               case 'pause':
                 // Already paused, So do not do anything. Just wait for next command.
                 break;
@@ -469,6 +526,17 @@ export default function Home() {
   const [isMuted, setIsMuted] = useState(false);
   const [showWarmup, setShowWarmup] = useState(false);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  function openCalendarModal() {
+    console.log("Opening Cal.com modal");
+    setIsModalOpen(true);
+  }
+
+  const closeCalendarModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.videoWrapper}>
@@ -503,6 +571,7 @@ export default function Home() {
           </div>
         </div>
       )}
+      <CalendarModal isOpen={isModalOpen} onClose={closeCalendarModal} />
     </div>
   );
 }

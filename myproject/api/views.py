@@ -145,6 +145,8 @@ class QueryEmbeddingView(APIView):
             intent = "resume"
         elif any(kw in query_text_lower for kw in ["last", "previous", "go back"]):
             intent = "go_back"
+        elif any(kw in query_text_lower for kw in ["schedule", "bad", "boring"]):
+            intent = "external"
 
         # Generate embedding for query text
         response = client.embeddings.create(model="mistral-embed", inputs=[query_text])
