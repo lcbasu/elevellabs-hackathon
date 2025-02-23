@@ -4,7 +4,14 @@ import {useEffect, useRef, useState} from "react";
 import styles from "./page.module.css";
 import axios from "axios";
 import {getAudioFromDB, storeAudioInDB} from "./indexedDB";
+import posthog from 'posthog-js'
 
+posthog.init('phc_Fd0YRwxWRWZMeYFgfWQUC4tKT6xze3fvAx6j2sFK5zD',
+  {
+    api_host: 'https://us.i.posthog.com',
+    person_profiles: 'identified_only' // or 'always' to create profiles for anonymous users as well
+  }
+)
 const otherTexts = [
   {
     id: 'external',
@@ -12,7 +19,7 @@ const otherTexts = [
   },
   {
     id: 'warmup',
-    text: "Hey Lokesh, great to have you on the call today! Hope you’re doing well. Before we dive in, I just wanted to set the stage — today’s session is all about showing you how Mixpanel can help you track user behavior, improve retention, or optimize conversions. Feel free to jump in with any questions along the way. Looking forward to an insightful discussion!",
+    text: "Hey Lokesh, great to have you on the call today! Today’s session is all about showing you how Mixpanel can help you track user behavior, improve retention, or optimize conversions. Feel free to jump in with any questions along the way. Looking forward to an insightful discussion!",
   },
   {
     id: 'some_action',
