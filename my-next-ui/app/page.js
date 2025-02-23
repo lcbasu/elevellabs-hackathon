@@ -19,7 +19,7 @@ const otherTexts = [
   },
   {
     id: 'warmup',
-    text: "Hey Lokesh, great to have you on the call today! Today’s session is all about showing you how Mixpanel can help you track user behavior, improve retention, or optimize conversions. Feel free to jump in with any questions along the way. Looking forward to an insightful discussion!",
+    text: "Hi Lokesh, great to have you on the call today!",
   },
   {
     id: 'some_action',
