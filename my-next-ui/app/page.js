@@ -453,19 +453,56 @@ export default function Home() {
       if (ttsAudioRef.current) ttsAudioRef.current.pause();
     }
   };
+
+
+  const handleToggleMute = () => {
+    console.log("Mute button clicked");
+  };
+
+  const handleNotes = () => {
+    console.log("Notes button clicked");
+  };
+
+  const handleWarmupProceed = () => {
+    console.log("Warmup proceed button clicked");
+  };
+  const [isMuted, setIsMuted] = useState(false);
+  const [showWarmup, setShowWarmup] = useState(false);
+
   return (
     <div className={styles.container}>
-      <video
-        ref={videoRef}
-        className={styles.video}
-        muted
-      >
-        <source src="/main.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-      <button className={styles.controlButton} onClick={handleToggleDemo}>
-        {demoStarted ? "End Demo" : "Start Demo"}
-      </button>
+      <div className={styles.videoWrapper}>
+        <video
+          ref={videoRef}
+          className={styles.video}
+          muted
+        >
+          <source src="/main.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <div className={styles.bottomBar}>
+        <button className={styles.sideButton} onClick={handleToggleMute}>
+          {isMuted ? "Unmute" : "Mute"}
+        </button>
+        <button className={styles.hangupButton} onClick={handleToggleDemo}>
+          {demoStarted ? "Hang Up" : "Call"}
+        </button>
+        <button className={styles.sideButton} onClick={handleNotes}>
+          Notes
+        </button>
+      </div>
+      {showWarmup && (
+        <div className={styles.warmupOverlay}>
+          <div className={styles.warmupContent}>
+            <h2>Welcome to the Mixpanel Demo</h2>
+            <p>Please wait while we warm up.</p>
+            <button className={styles.proceedButton} onClick={handleWarmupProceed}>
+              Proceed
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
