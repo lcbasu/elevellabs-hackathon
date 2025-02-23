@@ -223,6 +223,9 @@ export default function Home() {
             case 'new_section':
               intent = 'before_new_section_resumes';
               break;
+            case 'go_back':
+              intent = 'go_back';
+              break;
             case 'some_action':
               intent = 'some_action';
               break;
@@ -275,6 +278,10 @@ export default function Home() {
                 break;
               case 'some_action':
                 console.log('some_action');
+                break;
+              case 'go_back':
+                console.log('start from last section');
+                handleStartFromGivenSection((currentSegmentIndex - 1) < 0 ? 0 : (currentSegmentIndex - 1));
                 break;
               case 'sorry':
                 console.log('sorry');

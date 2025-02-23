@@ -139,13 +139,12 @@ class QueryEmbeddingView(APIView):
 
         query_text_lower = query_text.lower()
 
-        # Check for explicit actions.
         if "pause" in query_text_lower:
-            # User explicitly wants to pause.
-            intent =  "pause"
+            intent = "pause"
         elif "resume" in query_text_lower:
-            # User explicitly wants to resume.
             intent = "resume"
+        elif any(kw in query_text_lower for kw in ["last", "previous", "go back"]):
+            intent = "go_back"
 
         # Generate embedding for query text
         response = client.embeddings.create(model="mistral-embed", inputs=[query_text])
