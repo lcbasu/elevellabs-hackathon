@@ -4,6 +4,8 @@ import os
 import uuid
 from urllib.parse import unquote
 
+import difflib
+
 import numpy as np
 import requests
 from django.http import JsonResponse, FileResponse, HttpResponse
@@ -27,6 +29,45 @@ MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 client = Mistral(api_key=MISTRAL_API_KEY)
 
 TRANSCRIPT_FILE = os.path.join(os.path.dirname(__file__), "transcript.json")
+
+
+# Define your custom intents
+custom_intents = {
+    "intents": [
+        {
+            "intent": "Pause",
+            "utterances": ["pause", "hold on", "stop for a moment"]
+        },
+        {
+            "intent": "Resume",
+            "utterances": ["resume", "continue", "keep going"]
+        },
+        {
+            "intent": "RepeatSection",
+            "utterances": [
+                "repeat this section",
+                "say that again",
+                "can you repeat the last section"
+            ]
+        },
+        {
+            "intent": "NextSection",
+            "utterances": [
+                "got next section",
+                "next section",
+                "skip to the next section"
+            ]
+        },
+        {
+            "intent": "PreviousSection",
+            "utterances": [
+                "go to previous section",
+                "back to the previous section",
+                "go to previous to prev section"
+            ]
+        }
+    ]
+}
 
 class EchoView(APIView):
     def post(self, request, *args, **kwargs):
@@ -68,12 +109,43 @@ class GenerateEmbeddingsView(APIView):
 
         return Response({"message": f"Added {len(new_texts)} new embeddings."}, status=status.HTTP_201_CREATED)
 
+def detect_intent(user_input, threshold=0.5):
+    best_intent = None
+    best_score = 0.0
+
+    # Lowercase the input for case-insensitive matching
+    user_input_lower = user_input.lower()
+
+    for intent in custom_intents["intents"]:
+        for utterance in intent["utterances"]:
+            # Compute similarity score
+            score = difflib.SequenceMatcher(None, user_input_lower, utterance.lower()).ratio()
+            if score > best_score:
+                best_score = score
+                best_intent = intent["intent"]
+
+    # Return the best intent if above the threshold; otherwise, unknown.
+    return best_intent if best_score >= threshold else "Unknown"
+
 class QueryEmbeddingView(APIView):
     def post(self, request):
         query_text = request.data.get("query", "")
 
         if not query_text:
             return Response({"error": "Query text is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # intent = detect_intent(query_text)
+        intent = ""
+
+        query_text_lower = query_text.lower()
+
+        # Check for explicit actions.
+        if "pause" in query_text_lower:
+            # User explicitly wants to pause.
+            intent =  "pause"
+        elif "resume" in query_text_lower:
+            # User explicitly wants to resume.
+            intent = "resume"
 
         # Generate embedding for query text
         response = client.embeddings.create(model="mistral-embed", inputs=[query_text])
@@ -103,6 +175,7 @@ class QueryEmbeddingView(APIView):
                     "text": best_match.text,
                 },
                 "confidence": round(float(similarities[best_match_index]), 2),
+                "intent": intent
             },
             status=status.HTTP_200_OK,
         )
