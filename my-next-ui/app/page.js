@@ -12,7 +12,7 @@ const otherTexts = [
   },
   {
     id: 'warmup',
-    text: "Hi there! I’m excited to show you how Mixpanel turns raw data into actionable insights, empowering you to make smarter decisions and drive growth. Let’s get started!",
+    text: "Hey Lokesh, great to have you on the call today! Hope you’re doing well. Before we dive in, I just wanted to set the stage — today’s session is all about showing you how Mixpanel can help you track user behavior, improve retention, or optimize conversions. Feel free to jump in with any questions along the way. Looking forward to an insightful discussion!",
   },
   {
     id: 'some_action',
@@ -495,12 +495,36 @@ export default function Home() {
     if (!demoStarted) {
       // Optionally, preload the transcript and cache audio
       await fetchTranscriptAndCacheAudio();
-      setCurrentSegmentIndex(0);
-      videoRef.current.currentTime = 0;
-      videoRef.current.playbackRate = 1;
-      if (ttsAudioRef.current) ttsAudioRef.current.pause();
-      videoRef.current.play().catch((err) => console.warn("Video play error:", err));
-      setDemoStarted(true);
+      const textObject = otherTexts.find((item) => item.id === "warmup");
+      console.log('textObject:', textObject);
+      if (textObject) {
+        // play the warmup
+        let audioDataUrl;
+        const textId = await generateTextId(textObject.text);
+        const cachedAudio = await getAudioFromDB(textId);
+        audioDataUrl = URL.createObjectURL(cachedAudio);
+        console.log('audioDataUrl:', audioDataUrl);
+        const warmupTtsAudio = new Audio(audioDataUrl);
+        warmupTtsAudio.play().catch((err) => {
+          console.warn("warmup TTS play error:", err);
+        });
+        warmupTtsAudio.onended = () => {
+          console.log("Audio playback has ended.");
+          setCurrentSegmentIndex(0);
+          videoRef.current.currentTime = 0;
+          videoRef.current.playbackRate = 1;
+          if (ttsAudioRef.current) ttsAudioRef.current.pause();
+          videoRef.current.play().catch((err) => console.warn("Video play error:", err));
+          setDemoStarted(true);
+        };
+      } else {
+        setCurrentSegmentIndex(0);
+        videoRef.current.currentTime = 0;
+        videoRef.current.playbackRate = 1;
+        if (ttsAudioRef.current) ttsAudioRef.current.pause();
+        videoRef.current.play().catch((err) => console.warn("Video play error:", err));
+        setDemoStarted(true);
+      }
     } else {
       setDemoStarted(false);
       setCurrentSegmentIndex(0);
